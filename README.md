@@ -1,8 +1,57 @@
-# Pastelería Mil Sabores — Versión React
+# Pastelería Mil Sabores — React + Bootstrap (Evaluación Parcial 2 · DSY1104)
 
-Migración a **React + Vite** del sitio original hecho con HTML, CSS y JavaScript.
-Se mantiene el mismo diseño (`styles.css` y `admin.css`), los mismos datos, las mismas
-validaciones y las mismas reglas de negocio; los datos siguen guardándose en `localStorage`.
+Tienda online construida con **React 19 + Vite**, diseño responsivo con **Bootstrap 5** (respetando el diseño visual del equipo de la Evaluación 1: paleta bordó y rosa oscuro, fuentes Licorice y Sulphur Point e imágenes propias),
+fuente de datos simulada con **CRUD** sobre `localStorage` y pruebas unitarias con **Jasmine + Karma**.
+
+## Pruebas unitarias (Jasmine + Karma)
+
+```bash
+npm test            # ejecuta las pruebas una vez en Chrome sin interfaz y genera la cobertura
+npm run test:watch  # modo observador
+```
+
+- Configuración: `karma.conf.cjs` (Karma + Jasmine + Webpack/Babel para JSX + karma-coverage).
+- Pruebas: `src/test/` → `logica/` (validaciones, CRUD, reglas de negocio, filtros),
+  `componentes/` (Boton, Campo, TarjetaProducto, listas, Header, useFormulario/Login) y
+  `paginas/` (tienda, flujo de compra, registro y panel admin).
+- Mocks: `jasmine.createSpy` para props de eventos y `spyOn` para `Carrito.agregar`,
+  `Pasarela.procesar` y `window.confirm`.
+- Informe de cobertura: `coverage/html/index.html` (se genera al ejecutar `npm test`).
+- Requiere Google Chrome instalado (si no lo encuentra, define la variable `CHROME_BIN`).
+
+## Vistas nuevas (Anexo 1)
+
+| Tienda | Ruta |
+|---|---|
+| Categorías / una categoría | `/categorias` · `/categorias/:id` |
+| Ofertas | `/ofertas` |
+| Carrito (lista de productos + carrito) | `/carrito` |
+| Checkout (datos, dirección y pago) | `/checkout` |
+| Compra exitosa | `/compra/exitosa/:numero` |
+| Pago con error | `/compra/error` |
+
+Pasarela de pago simulada: `4111 1111 1111 1111` → aprobado · `4000 0000 0000 0002` → rechazado.
+
+| Administrador | Ruta |
+|---|---|
+| Dashboard | `/admin` |
+| Órdenes / Mostrar boleta | `/admin/ordenes` · `/admin/ordenes/:numero` |
+| Productos / nuevo / mostrar / editar | `/admin/productos` · `/nuevo` · `/:codigo` · `/:codigo/editar` |
+| Listado de productos críticos | `/admin/productos/criticos` |
+| Categorías / nueva / editar | `/admin/categorias` · `/nueva` · `/:id/editar` |
+| Usuarios / nuevo / mostrar / editar / historial de compras | `/admin/usuarios` · `/nuevo` · `/:run` · `/:run/editar` · `/:run/compras` |
+| Reportes | `/admin/reportes` |
+| Perfil | `/admin/perfil` |
+
+## Fuente de datos con CRUD
+
+`src/lib/db.js` crea colecciones (`productos`, `categorias`, `usuarios`, `ordenes`, `mensajes`)
+con `crear`, `listar`, `obtener`, `actualizar` y `eliminar`. Cada escritura avisa a los
+componentes (hook `useStore`) y la interfaz se actualiza en tiempo real.
+`src/lib/store.js` agrega las reglas de negocio encima (carrito, descuentos, ofertas, pago, órdenes, reportes).
+
+---
+
 
 ## Requisitos
 
@@ -73,7 +122,7 @@ mil-sabores-react/
                                ProductoDetalle, AdminUsuarios, UsuarioForm, UsuarioDetalle
 ```
 
-## Rutas
+## Rutas de la versión anterior
 
 | Antes (HTML) | Ahora (React Router) |
 |---|---|

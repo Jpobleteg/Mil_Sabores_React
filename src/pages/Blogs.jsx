@@ -21,22 +21,22 @@ export const BLOGS = [
 export default function Blogs() {
   useTitulo("Blogs | Pastelería Mil Sabores");
   return (
-    <div className="contenedor">
-      <header className="seccion-titulo" style={{ marginTop: 32 }}>
+    <div className="container py-4">
+      <header className="text-center mb-4">
         <h1>Noticias importantes</h1>
         <p>Historias, recetas y consejos de nuestros pasteleros y de los estudiantes de gastronomía de Duoc.</p>
       </header>
-      <div className="blog-lista">
+      <div className="row g-4">
         {BLOGS.map(b => (
-          <article key={b.slug} className="blog-tarjeta">
-            <div>
-              <p className="fecha"><time dateTime={b.fecha}>{b.fechaTexto}</time> · {b.tipo}</p>
+          <div className="col-12" key={b.slug}><article className="card shadow-sm overflow-hidden"><div className="row g-0 align-items-center">
+            <div className="col-12 col-md-7 p-4">
+              <p className="small text-body-secondary"><time dateTime={b.fecha}>{b.fechaTexto}</time> · {b.tipo}</p>
               <h2>{b.titulo}</h2>
               <p>{b.resumen}</p>
-              <Link className="btn" to={`/blogs/${b.slug}`}>Ver caso</Link>
+              <Link className="btn btn-primary" to={`/blogs/${b.slug}`}>Ver caso</Link>
             </div>
-            <img src={b.imagen} alt={b.alt} width="400" height="300" />
-          </article>
+            <div className="col-12 col-md-5"><img src={b.imagen} alt={b.alt} width="400" height="300" className="img-fluid w-100" /></div>
+          </div></article></div>
         ))}
       </div>
     </div>

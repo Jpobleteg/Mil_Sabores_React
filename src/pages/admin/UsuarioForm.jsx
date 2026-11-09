@@ -21,18 +21,18 @@ export default function UsuarioForm() {
   return (
     <>
       <CabeceraAdmin titulo={run ? "Editar usuario" : "Nuevo usuario"}>
-        <Link className="btn btn-borde" to="/admin/usuarios">← Volver</Link>
+        <Link className="btn btn-outline-primary" to="/admin/usuarios">← Volver</Link>
       </CabeceraAdmin>
-      <section className="tarjeta-form">
+      <section className="card shadow-sm" style={{ maxWidth: 900 }}><div className="card-body p-4">
         {run && !editando ? (
           <>
-            <p className="resumen-errores">El usuario no existe.</p>
-            <Link className="btn" to="/admin/usuarios">Volver</Link>
+            <div className="alert alert-warning">El usuario no existe.</div>
+            <Link className="btn btn-primary" to="/admin/usuarios">Volver</Link>
           </>
         ) : (
           <FormularioUsuario key={run || "nuevo"} modo="admin" editando={editando} onGuardar={guardar} textoBoton="Guardar usuario" />
         )}
-      </section>
+      </div></section>
     </>
   );
 }

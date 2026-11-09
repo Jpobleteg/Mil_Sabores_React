@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 
-/* Avisos flotantes (toast) disponibles en toda la app: const avisar = useAvisos(); */
+/* Avisos flotantes (toast de Bootstrap) disponibles en toda la app:
+   const avisar = useAvisos();  avisar("Mensaje", "ok" | "error") */
 const AvisosContext = createContext(() => {});
 
 export function AvisosProvider({ children }) {
@@ -17,9 +18,11 @@ export function AvisosProvider({ children }) {
   return (
     <AvisosContext.Provider value={avisar}>
       {children}
-      <div id="avisos" role="status" aria-live="polite">
+      <div className="avisos-ms" role="status" aria-live="polite" id="avisos">
         {avisos.map(a => (
-          <div key={a.id} className={`aviso aviso-${a.tipo}${a.saliendo ? " salir" : ""}`}>{a.mensaje}</div>
+          <div key={a.id} className={`toast align-items-center border-0 text-white ${a.tipo === "error" ? "bg-danger" : "bg-success"}${a.saliendo ? " salir" : ""}`}>
+            <div className="toast-body fw-bold">{a.mensaje}</div>
+          </div>
         ))}
       </div>
     </AvisosContext.Provider>

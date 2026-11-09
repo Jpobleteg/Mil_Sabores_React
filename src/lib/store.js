@@ -1,97 +1,106 @@
 /* =========================================================
-   store.js — Persistencia en localStorage, sesión, carrito,
-   descuentos y utilidades compartidas por todas las páginas.
-
-   Cada vez que se guarda algo se avisa a los componentes
-   suscritos (ver hooks/useStore.js) para que React vuelva a
-   dibujar con los datos nuevos.
+   store.js — Reglas de negocio sobre la fuente de datos (db.js):
+   catálogo, categorías, usuarios, sesión, carrito, descuentos,
+   pasarela de pago simulada, órdenes y reportes.
    ========================================================= */
-import { PRODUCTOS_BASE, USUARIOS_BASE, TAMANOS } from "./data.js";
+import { TAMANOS } from "./data.js";
 import { calcularEdad } from "./validaciones.js";
+import { db, LS, leer, guardar, notificar } from "./db.js";
 
-export const LS = {
-  PRODUCTOS: "ms_productos",
-  USUARIOS: "ms_usuarios",
-  SESION: "ms_sesion",
-  CARRITO: "ms_carrito",
-  ORDENES: "ms_ordenes",
-  MENSAJES: "ms_mensajes"
-};
-
-/* ---------------- Suscripción (para React) ---------------- */
-let version = 0;
-const oyentes = new Set();
-export const suscribir = fn => {
-  oyentes.add(fn);
-  return () => oyentes.delete(fn);
-};
-export const obtenerVersion = () => version;
-const notificar = () => {
-  version++;
-  oyentes.forEach(fn => fn());
-};
-/* Cambios hechos en otra pestaña del navegador */
-if (typeof window !== "undefined") {
-  window.addEventListener("storage", e => { if (e.key && e.key.startsWith("ms_")) notificar(); });
-}
-
-export const leer = (clave, porDefecto) => {
-  try {
-    const v = localStorage.getItem(clave);
-    return v ? JSON.parse(v) : porDefecto;
-  } catch {
-    return porDefecto;
-  }
-};
-export const guardar = (clave, valor) => {
-  localStorage.setItem(clave, JSON.stringify(valor));
-  notificar();
-};
-
-/* Carga inicial: si no hay datos, copia los datos base */
-if (!localStorage.getItem(LS.PRODUCTOS)) localStorage.setItem(LS.PRODUCTOS, JSON.stringify(PRODUCTOS_BASE));
-if (!localStorage.getItem(LS.USUARIOS)) localStorage.setItem(LS.USUARIOS, JSON.stringify(USUARIOS_BASE));
+export { LS, leer, guardar, suscribir, obtenerVersion, db, reiniciarDatos } from "./db.js";
 
 /* ---------------- Formato ---------------- */
 export const formatoCLP = n =>
   "$" + Math.round(Number(n) || 0).toLocaleString("es-CL") + " CLP";
 
-export const precioTexto = p => (p.precio === 0 ? "FREE" : formatoCLP(p.precio));
+export const precioTexto = p => (precioFinal(p) === 0 ? "FREE" : formatoCLP(precioFinal(p)));
+
+/* Convierte un texto en identificador para URL: "Tortas Cuadradas" → "tortas-cuadradas" */
+export const slug = texto =>
+  String(texto).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 /* ---------------- Productos ---------------- */
+export const enOferta = p =>
+  p.precioOferta !== undefined && p.precioOferta !== null && p.precioOferta !== "" && Number(p.precioOferta) < Number(p.precio);
+
+export const precioFinal = p => (enOferta(p) ? Number(p.precioOferta) : Number(p.precio));
+
+export const porcentajeOferta = p => (enOferta(p) && p.precio > 0 ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0);
+
 export const Productos = {
-  todos: () => leer(LS.PRODUCTOS, []),
-  buscar: codigo => Productos.todos().find(p => p.codigo === codigo),
-  guardarTodos: lista => guardar(LS.PRODUCTOS, lista),
+  todos: () => db.productos.listar(),
+  buscar: codigo => db.productos.obtener(codigo) || undefined,
+  crear: p => db.productos.crear(p),
+  actualizar: (codigo, cambios) => db.productos.actualizar(codigo, cambios),
+  eliminar: codigo => db.productos.eliminar(codigo),
+  guardarTodos: lista => db.productos.reemplazar(lista),
+  /* Crea o actualiza (si se indica el código original) */
   guardar(producto, codigoOriginal = null) {
-    const lista = Productos.todos();
-    const i = lista.findIndex(p => p.codigo === (codigoOriginal || producto.codigo));
-    if (i >= 0) lista[i] = producto; else lista.push(producto);
-    Productos.guardarTodos(lista);
+    if (codigoOriginal && db.productos.existe(codigoOriginal)) return db.productos.actualizar(codigoOriginal, producto);
+    return db.productos.crear(producto);
   },
-  eliminar(codigo) {
-    Productos.guardarTodos(Productos.todos().filter(p => p.codigo !== codigo));
-  },
+  porCategoria: nombre => Productos.todos().filter(p => p.categoria === nombre),
+  ofertas: () => Productos.todos().filter(enOferta),
+  criticos: () => Productos.todos().filter(Productos.esCritico),
   esTorta: p => /torta|cheesecake/i.test(p.nombre) || /^Tortas/.test(p.categoria),
   /* Las imágenes base viven en /public/img; las subidas por el admin son dataURL */
   imagen: p => (p.imagen && p.imagen.startsWith("data:") ? p.imagen : "/" + (p.imagen || "img/logo.svg").replace(/^\/+/, "")),
   esCritico: p => p.stockCritico !== "" && p.stockCritico !== null && p.stockCritico !== undefined && p.stock <= Number(p.stockCritico)
 };
 
+/* ---------------- Categorías ---------------- */
+export const Categorias = {
+  todas: () => db.categorias.listar(),
+  nombres: () => Categorias.todas().map(c => c.nombre),
+  obtener: id => db.categorias.obtener(id),
+  porNombre: nombre => Categorias.todas().find(c => c.nombre === nombre) || null,
+  contarProductos: nombre => Productos.porCategoria(nombre).length,
+  /* Imagen representativa: la del primer producto de la categoría */
+  imagen(c) {
+    const p = Productos.porCategoria(c.nombre)[0];
+    return p ? Productos.imagen(p) : "/img/logo.svg";
+  },
+  crear({ nombre, descripcion = "" }) {
+    const n = nombre.trim();
+    if (Categorias.porNombre(n)) throw new Error("Ya existe una categoría con ese nombre.");
+    return db.categorias.crear({ id: slug(n), nombre: n, descripcion: descripcion.trim() });
+  },
+  /* Al renombrar, los productos de la categoría se actualizan */
+  actualizar(id, { nombre, descripcion = "" }) {
+    const actual = db.categorias.obtener(id);
+    if (!actual) throw new Error("La categoría no existe.");
+    const n = nombre.trim();
+    const otra = Categorias.porNombre(n);
+    if (otra && otra.id !== actual.id) throw new Error("Ya existe una categoría con ese nombre.");
+    if (n !== actual.nombre) {
+      db.productos.reemplazar(Productos.todos().map(p => (p.categoria === actual.nombre ? { ...p, categoria: n } : p)));
+    }
+    return db.categorias.actualizar(id, { nombre: n, descripcion: descripcion.trim() });
+  },
+  /* No se puede eliminar una categoría que tiene productos */
+  eliminar(id) {
+    const c = db.categorias.obtener(id);
+    if (!c) return { ok: false, msg: "La categoría no existe." };
+    const n = Categorias.contarProductos(c.nombre);
+    if (n > 0) return { ok: false, msg: `No se puede eliminar: tiene ${n} producto${n === 1 ? "" : "s"}.` };
+    db.categorias.eliminar(id);
+    return { ok: true, msg: "Categoría eliminada." };
+  }
+};
+
 /* ---------------- Usuarios ---------------- */
 export const Usuarios = {
-  todos: () => leer(LS.USUARIOS, []),
+  todos: () => db.usuarios.listar(),
   buscarPorCorreo: correo => Usuarios.todos().find(u => u.correo.toLowerCase() === String(correo).toLowerCase()),
-  buscarPorRun: run => Usuarios.todos().find(u => u.run.toUpperCase() === String(run).toUpperCase()),
+  buscarPorRun: run => db.usuarios.obtener(run) || undefined,
+  crear: u => db.usuarios.crear(u),
   guardar(usuario, runOriginal = null) {
-    const lista = Usuarios.todos();
-    const i = lista.findIndex(u => u.run === (runOriginal || usuario.run));
-    if (i >= 0) lista[i] = { ...lista[i], ...usuario }; else lista.push(usuario);
-    guardar(LS.USUARIOS, lista);
+    const id = runOriginal || usuario.run;
+    if (db.usuarios.existe(id)) return db.usuarios.actualizar(id, usuario);
+    return db.usuarios.crear(usuario);
   },
-  eliminar(run) {
-    guardar(LS.USUARIOS, Usuarios.todos().filter(u => u.run !== run));
-  }
+  eliminar: run => db.usuarios.eliminar(run)
 };
 
 /* ---------------- Sesión ---------------- */
@@ -118,9 +127,8 @@ export const Sesion = {
    Los porcentajes NO se acumulan: se aplica el mayor.                      */
 export const CODIGO_PROMO = "FELICES50";
 
-export function esCumpleanosHoy(fechaISO) {
+export function esCumpleanosHoy(fechaISO, hoy = new Date()) {
   if (!fechaISO) return false;
-  const hoy = new Date();
   const [, m, d] = fechaISO.split("-").map(Number);
   return hoy.getMonth() + 1 === m && hoy.getDate() === d;
 }
@@ -197,19 +205,33 @@ export const Carrito = {
     return { ok: true };
   },
 
-  vaciar: () => Carrito.guardar([]),
+  vaciar() {
+    localStorage.removeItem(LS.CUPON);
+    Carrito.guardar([]);
+  },
+
+  /* Cupón aplicado (se conserva entre el carrito y el checkout) */
+  cupon: () => leer(LS.CUPON, ""),
+  aplicarCupon(codigo) {
+    const c = String(codigo || "").trim().toUpperCase();
+    if (!c) return { ok: false, msg: "Debes completar el cupón." };
+    if (c !== CODIGO_PROMO) return { ok: false, msg: "Cupón no válido. Prueba con FELICES50." };
+    guardar(LS.CUPON, c);
+    return { ok: true, msg: "Cupón aplicado: 10% de descuento." };
+  },
 
   cantidadTotal: () => Carrito.items().reduce((s, i) => s + i.cantidad, 0),
 
+  /* Precio unitario: precio de oferta si existe × factor de tamaño */
   precioUnitario(item) {
     const p = Productos.buscar(item.codigo);
     if (!p) return 0;
     const t = TAMANOS.find(t => t.id === item.tamano);
-    return Math.round(p.precio * (t ? t.factor : 1));
+    return Math.round(precioFinal(p) * (t ? t.factor : 1));
   },
 
   /* Calcula el resumen con descuentos del usuario y el cupón ingresado */
-  resumen(cupon = "") {
+  resumen(cupon = Carrito.cupon()) {
     const usuario = Sesion.usuario();
     const b = beneficiosUsuario(usuario);
     const lineas = Carrito.items()
@@ -240,59 +262,111 @@ export const Carrito = {
   }
 };
 
+/* ---------------- Pasarela de pago simulada ----------------
+   No se conecta a ningún banco. Reglas para probar ambos caminos:
+     · Tarjetas que empiezan con 4000 → pago RECHAZADO (fondos insuficientes).
+     · Cualquier otra tarjeta válida   → pago APROBADO.
+   También rechaza si algún producto ya no tiene stock suficiente. */
+export const TARJETA_APROBADA = "4111 1111 1111 1111";
+export const TARJETA_RECHAZADA = "4000 0000 0000 0002";
+
+export const Pasarela = {
+  procesar({ tarjeta, total }, lineas = []) {
+    const numero = String(tarjeta || "").replace(/\s/g, "");
+    const sinStock = lineas.find(l => {
+      const p = Productos.buscar(l.codigo);
+      return !p || p.stock < l.cantidad;
+    });
+    if (sinStock) return { aprobado: false, motivo: `No hay stock suficiente de ${sinStock.producto ? sinStock.producto.nombre : sinStock.codigo}.` };
+    if (numero.startsWith("4000")) return { aprobado: false, motivo: "El banco rechazó la transacción (fondos insuficientes)." };
+    if (!(total >= 0)) return { aprobado: false, motivo: "Monto inválido." };
+    return { aprobado: true, autorizacion: "AUT" + String(Date.now()).slice(-6) };
+  }
+};
+
 /* ---------------- Órdenes / boletas ---------------- */
 export const ESTADOS = ["En preparación", "Listo", "En camino", "Entregado"];
 
 export const Ordenes = {
-  todas: () => leer(LS.ORDENES, []),
+  todas: () => db.ordenes.listar(),
+  obtener: numero => db.ordenes.obtener(numero),
+  delCliente: correo => Ordenes.todas().filter(o => o.correo && o.correo.toLowerCase() === String(correo).toLowerCase()),
   cambiarEstado(numero, estado) {
-    const ordenes = Ordenes.todas();
-    const o = ordenes.find(x => x.numero === numero);
-    if (!o) return null;
-    o.estado = estado;
-    guardar(LS.ORDENES, ordenes);
-    return o;
+    if (!ESTADOS.includes(estado) || !db.ordenes.existe(numero)) return null;
+    return db.ordenes.actualizar(numero, { estado });
   },
-  crear(resumen, entrega) {
-    const ordenes = Ordenes.todas();
-    const numero = "B" + String(ordenes.length + 1).padStart(5, "0");
+  siguienteNumero: () => "B" + String(Ordenes.todas().length + 1).padStart(5, "0"),
+
+  /* Crea la orden, descuenta stock, marca la torta de cumpleaños y vacía el carrito.
+     cliente: { nombre, apellidos, correo } · entrega: { fecha, calle, departamento, region, comuna, indicaciones } */
+  crear(resumen, entrega, cliente = null, autorizacion = "") {
+    const u = resumen.usuario;
+    const datosCliente = cliente || (u ? { nombre: u.nombre, apellidos: u.apellidos, correo: u.correo } : { nombre: "Invitado", apellidos: "", correo: "" });
+    const direccion = entrega.direccion ||
+      [entrega.calle, entrega.departamento].filter(Boolean).join(", ") + (entrega.comuna ? `, ${entrega.comuna}` : "");
     const orden = {
-      numero,
+      numero: Ordenes.siguienteNumero(),
       fecha: new Date().toISOString(),
-      cliente: resumen.usuario ? `${resumen.usuario.nombre} ${resumen.usuario.apellidos}` : "Invitado",
-      correo: resumen.usuario ? resumen.usuario.correo : "",
-      items: resumen.lineas.map(l => ({ codigo: l.codigo, nombre: l.producto.nombre, cantidad: l.cantidad, unitario: l.unitario, tamano: l.tamano, mensaje: l.mensaje })),
+      cliente: `${datosCliente.nombre} ${datosCliente.apellidos}`.trim(),
+      datosCliente,
+      correo: datosCliente.correo,
+      items: resumen.lineas.map(l => ({
+        codigo: l.codigo, nombre: l.producto.nombre, categoria: l.producto.categoria,
+        cantidad: l.cantidad, unitario: l.unitario, tamano: l.tamano, mensaje: l.mensaje
+      })),
       subtotal: resumen.subtotal,
       descuento: resumen.descuentoTorta + resumen.descuentoPct,
       total: resumen.total,
-      entrega,
+      entrega: { ...entrega, direccion },
+      autorizacion,
       estado: "En preparación"
     };
-    ordenes.push(orden);
-    guardar(LS.ORDENES, ordenes);
+    db.ordenes.crear(orden);
 
     /* Descuenta stock */
-    const productos = Productos.todos();
-    orden.items.forEach(it => {
-      const p = productos.find(x => x.codigo === it.codigo);
-      if (p) p.stock = Math.max(0, p.stock - it.cantidad);
-    });
-    Productos.guardarTodos(productos);
+    db.productos.reemplazar(Productos.todos().map(p => {
+      const vendidos = orden.items.filter(it => it.codigo === p.codigo).reduce((s, it) => s + it.cantidad, 0);
+      return vendidos ? { ...p, stock: Math.max(0, p.stock - vendidos) } : p;
+    }));
 
     /* Marca la torta de cumpleaños como usada este año */
-    if (resumen.descuentoTorta && resumen.usuario) {
-      Usuarios.guardar({ ...resumen.usuario, tortaGratisAnio: new Date().getFullYear() });
+    if (resumen.descuentoTorta && u) {
+      Usuarios.guardar({ ...u, tortaGratisAnio: new Date().getFullYear() });
     }
     Carrito.vaciar();
     return orden;
   }
 };
 
+/* ---------------- Reportes ---------------- */
+export const Reportes = {
+  ventasTotales: () => Ordenes.todas().reduce((s, o) => s + o.total, 0),
+  ventasPorCategoria() {
+    const mapa = {};
+    Ordenes.todas().forEach(o => o.items.forEach(i => {
+      const cat = i.categoria || (Productos.buscar(i.codigo) || {}).categoria || "Sin categoría";
+      mapa[cat] = (mapa[cat] || 0) + i.unitario * i.cantidad;
+    }));
+    return Object.entries(mapa).map(([categoria, monto]) => ({ categoria, monto })).sort((a, b) => b.monto - a.monto);
+  },
+  masVendidos(limite = 5) {
+    const mapa = {};
+    Ordenes.todas().forEach(o => o.items.forEach(i => {
+      mapa[i.codigo] = mapa[i.codigo] || { codigo: i.codigo, nombre: i.nombre, unidades: 0 };
+      mapa[i.codigo].unidades += i.cantidad;
+    }));
+    return Object.values(mapa).sort((a, b) => b.unidades - a.unidades).slice(0, limite);
+  },
+  ordenesPorEstado: () => ESTADOS.map(estado => ({ estado, cantidad: Ordenes.todas().filter(o => o.estado === estado).length })),
+  inventarioValorizado: () => Productos.todos().reduce((s, p) => s + precioFinal(p) * p.stock, 0),
+  unidadesEnStock: () => Productos.todos().reduce((s, p) => s + Number(p.stock || 0), 0)
+};
+
 /* ---------------- Mensajes de contacto ---------------- */
 export const Mensajes = {
-  todos: () => leer(LS.MENSAJES, []),
+  todos: () => db.mensajes.listar(),
   agregar(m) {
-    guardar(LS.MENSAJES, [...Mensajes.todos(), { ...m, fecha: new Date().toISOString() }]);
+    return db.mensajes.crear({ ...m, id: String(Date.now()) + Math.random().toString(16).slice(2, 6), fecha: new Date().toISOString() });
   }
 };
 

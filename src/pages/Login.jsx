@@ -5,6 +5,7 @@ import { useTitulo } from "../hooks/useStore.js";
 import { useFormulario } from "../hooks/useFormulario.js";
 import { useAvisos } from "../context/AvisosContext.jsx";
 import Campo from "../components/Campo.jsx";
+import TarjetaFormulario from "../components/TarjetaFormulario.jsx";
 
 /* Inicio de sesión
    Correo: requerido, máx. 100, solo @duoc.cl / @profesor.duoc.cl / @gmail.com
@@ -39,27 +40,24 @@ export default function Login() {
   });
 
   return (
-    <section className="tarjeta-form angosta" aria-labelledby="titulo-login">
-      <header className="marca">
-        <img src="/img/logo.svg" alt="Logo Pastelería Mil Sabores" width="80" height="80" />
-        <p style={{ fontFamily: "var(--fuente-titulo)", fontSize: "1.8rem", color: "var(--chocolate)", margin: 0 }}>Pastelería Mil Sabores</p>
-        <h1 id="titulo-login" style={{ fontFamily: "var(--fuente-texto)", fontWeight: 700, fontSize: "1.2rem", color: "var(--texto)" }}>Inicio de sesión</h1>
-      </header>
-      <form noValidate onSubmit={ingresar}>
-        <p className="resumen-errores" hidden={!resumen}>{resumen}</p>
+    <TarjetaFormulario titulo="Inicio de sesión" subtitulo="Pastelería Mil Sabores" ancho={460} idTitulo="titulo-login">
+      <form noValidate onSubmit={ingresar} className="row g-3">
+        {resumen && <div className="col-12"><div className="alert alert-danger mb-0" role="alert">{resumen}</div></div>}
         <Campo id="correo" label="Correo" error={errores.correo}>
           <input type="email" maxLength={100} placeholder="nombre@duoc.cl" autoComplete="username" {...campo("correo")} />
         </Campo>
         <Campo id="password" label="Contraseña" error={errores.password}>
           <input type="password" maxLength={10} autoComplete="current-password" {...campo("password")} />
         </Campo>
-        <button className="btn btn-bloque" type="submit">Iniciar sesión</button>
-        <p className="form-pie">¿No tienes cuenta? <Link to="/registro">Regístrate aquí</Link></p>
-        <details className="sugerencia" style={{ marginTop: 14 }}>
+        <div className="col-12">
+          <button className="btn btn-primary btn-lg w-100" type="submit">Iniciar sesión</button>
+          <p className="text-center mt-3 mb-0">¿No tienes cuenta? <Link to="/registro">Regístrate aquí</Link></p>
+        </div>
+        <details className="col-12 small text-body-secondary">
           <summary>Cuentas de prueba</summary>
-          <p style={{ margin: ".5em 0 0" }}>Administrador: admin@duoc.cl / admin123<br />Vendedor: vendedor@duoc.cl / vende123<br />Cliente: rosa@gmail.com / rosa1234</p>
+          <p className="mt-2 mb-0">Administrador: admin@duoc.cl / admin123<br />Vendedor: vendedor@duoc.cl / vende123<br />Cliente: rosa@gmail.com / rosa1234</p>
         </details>
       </form>
-    </section>
+    </TarjetaFormulario>
   );
 }

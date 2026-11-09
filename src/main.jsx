@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { AvisosProvider } from "./context/AvisosContext.jsx";
 import App from "./App.jsx";
-import "./styles/styles.css";
-import "./styles/admin.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/tema.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

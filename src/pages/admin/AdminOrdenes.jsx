@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { ESTADOS, Ordenes, formatoCLP } from "../../lib/store.js";
 import { useStore, useTitulo } from "../../hooks/useStore.js";
 import { useAvisos } from "../../context/AvisosContext.jsx";
 import CabeceraAdmin from "../../components/admin/CabeceraAdmin.jsx";
-import Dialogo from "../../components/Dialogo.jsx";
-import Boleta from "../../components/Boleta.jsx";
-import { claseEstado } from "./Dashboard.jsx";
+import Estado from "../../components/admin/Estado.jsx";
+import Paginacion, { paginar } from "../../components/admin/Paginacion.jsx";
 
+/* Órdenes / boletas: listado con búsqueda, filtro por estado y cambio de estado */
 export default function AdminOrdenes() {
   useStore();
   useTitulo("Órdenes | Administrador Mil Sabores");
@@ -15,13 +15,12 @@ export default function AdminOrdenes() {
   const avisar = useAvisos();
   const [buscar, setBuscar] = useState("");
   const [estado, setEstado] = useState("");
-  const [verNumero, setVerNumero] = useState(null);
+  const [pagina, setPagina] = useState(1);
 
-  const todas = Ordenes.todas();
   const t = buscar.trim().toLowerCase();
-  const lista = todas.filter(o =>
-    (!t || `${o.numero} ${o.cliente}`.toLowerCase().includes(t)) && (!estado || o.estado === estado)).reverse();
-  const ordenVista = verNumero ? todas.find(o => o.numero === verNumero) : null;
+  const lista = Ordenes.todas().filter(o =>
+    (!t || `${o.numero} ${o.cliente} ${o.correo}`.toLowerCase().includes(t)) && (!estado || o.estado === estado)).reverse();
+  const pag = paginar(lista, pagina, 10);
 
   const cambiarEstado = (numero, nuevo) => {
     const o = Ordenes.cambiarEstado(numero, nuevo);
@@ -30,48 +29,51 @@ export default function AdminOrdenes() {
 
   return (
     <>
-      <CabeceraAdmin titulo="Órdenes" />
-      <section className="panel">
-        <div className="herramientas">
-          <label htmlFor="buscar-orden" className="oculto-visual">Buscar orden</label>
-          <input type="search" id="buscar-orden" placeholder="Buscar por N° de boleta o cliente" value={buscar} onChange={e => setBuscar(e.target.value)} />
-          <label htmlFor="filtro-estado" className="oculto-visual">Estado</label>
-          <select id="filtro-estado" value={estado} onChange={e => setEstado(e.target.value)}>
-            <option value="">Todos los estados</option>
-            {ESTADOS.map(e => <option key={e}>{e}</option>)}
-          </select>
+      <CabeceraAdmin titulo="Órdenes / Boletas" subtitulo={`${lista.length} orden${lista.length === 1 ? "" : "es"}`} />
+      <section className="card shadow-sm"><div className="card-body">
+        <div className="row g-2 mb-3">
+          <div className="col-12 col-md-8">
+            <label htmlFor="buscar-orden" className="visually-hidden">Buscar orden</label>
+            <input type="search" id="buscar-orden" className="form-control" placeholder="Buscar por N° de boleta, cliente o correo" value={buscar}
+              onChange={e => { setBuscar(e.target.value); setPagina(1); }} />
+          </div>
+          <div className="col-12 col-md-4">
+            <label htmlFor="filtro-estado" className="visually-hidden">Estado</label>
+            <select id="filtro-estado" className="form-select" value={estado} onChange={e => { setEstado(e.target.value); setPagina(1); }}>
+              <option value="">Todos los estados</option>
+              {ESTADOS.map(e => <option key={e}>{e}</option>)}
+            </select>
+          </div>
         </div>
-        <div className="tabla-scroll">
-          <table className="tabla">
-            <thead><tr><th>N° boleta</th><th>Fecha</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <div className="table-responsive">
+          <table className="table table-hover align-middle">
+            <thead className="table-light"><tr><th>N° boleta</th><th>Fecha</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody>
-              {lista.length ? lista.map(o => (
+              {pag.visibles.length ? pag.visibles.map(o => (
                 <tr key={o.numero}>
-                  <td>{o.numero}</td>
+                  <td className="fw-bold">{o.numero}</td>
                   <td>{new Date(o.fecha).toLocaleDateString("es-CL")}</td>
                   <td>{o.cliente}</td>
                   <td>{o.entrega.fecha}</td>
-                  <td>{formatoCLP(o.total)}</td>
-                  <td>
+                  <td className="text-nowrap">{formatoCLP(o.total)}</td>
+                  <td style={{ minWidth: 150 }}>
                     {esAdmin ? (
                       <>
-                        <label className="oculto-visual" htmlFor={`estado-${o.numero}`}>Estado</label>
-                        <select id={`estado-${o.numero}`} value={o.estado} onChange={e => cambiarEstado(o.numero, e.target.value)}>
+                        <label className="visually-hidden" htmlFor={`estado-${o.numero}`}>Estado</label>
+                        <select id={`estado-${o.numero}`} className="form-select form-select-sm" value={o.estado} onChange={e => cambiarEstado(o.numero, e.target.value)}>
                           {ESTADOS.map(e => <option key={e}>{e}</option>)}
                         </select>
                       </>
-                    ) : <span className={claseEstado(o.estado)}>{o.estado}</span>}
+                    ) : <Estado estado={o.estado} />}
                   </td>
-                  <td><button className="btn btn-borde btn-chico" type="button" onClick={() => setVerNumero(o.numero)}>Ver detalle</button></td>
+                  <td><Link className="btn btn-outline-primary btn-sm text-nowrap" to={`/admin/ordenes/${o.numero}`}>Mostrar boleta</Link></td>
                 </tr>
-              )) : <tr><td colSpan="7">No hay órdenes todavía.</td></tr>}
+              )) : <tr><td colSpan="7" className="text-center py-4">No hay órdenes todavía.</td></tr>}
             </tbody>
           </table>
         </div>
-      </section>
-      <Dialogo abierto={Boolean(ordenVista)} onCerrar={() => setVerNumero(null)} aria-label="Detalle de la orden">
-        {ordenVista && <Boleta orden={ordenVista} modo="admin" />}
-      </Dialogo>
+        <Paginacion total={pag.total} pagina={pag.pagina} onCambiar={setPagina} />
+      </div></section>
     </>
   );
 }

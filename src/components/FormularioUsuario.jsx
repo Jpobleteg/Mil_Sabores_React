@@ -1,8 +1,9 @@
-import { CATEGORIAS, REGIONES, TIPOS_USUARIO } from "../lib/data.js";
-import { CODIGO_PROMO, Usuarios } from "../lib/store.js";
+import { TIPOS_USUARIO } from "../lib/data.js";
+import { CODIGO_PROMO, Categorias, Usuarios } from "../lib/store.js";
 import { DOMINIOS_PERMITIDOS, Validar, calcularEdad } from "../lib/validaciones.js";
 import { useFormulario } from "../hooks/useFormulario.js";
 import Campo from "./Campo.jsx";
+import SelectorRegionComuna from "./SelectorRegionComuna.jsx";
 
 /* =========================================================
    Formulario de usuario compartido por:
@@ -66,15 +67,7 @@ export default function FormularioUsuario({ modo, editando = null, onGuardar, te
   if (esAdmin) reglas.tipo = v => Validar.requerido(v, "El tipo de usuario");
 
   const f = useFormulario(inicial, reglas, { correo: ["correo2"], password: ["password2"] });
-  const { valores: v, errores, campo, enviar, cambiarValor, setValores, setErrores } = f;
-
-  /* Región → Comuna: al cambiar la región se recargan las comunas */
-  const comunas = REGIONES.find(r => r.region === v.region)?.comunas || [];
-  const cambiarRegion = e => {
-    const nuevos = cambiarValor("region", e.target.value);
-    setValores({ ...nuevos, comuna: "" });
-    setErrores(prev => { const c = { ...prev }; delete c.comuna; return c; });
-  };
+  const { valores: v, errores, campo, enviar, cambiarValor, setValores } = f;
 
   /* Sugerencia de dominios de correo mientras se escribe (autocompletar) */
   const usuarioCorreo = v.correo.split("@")[0];
@@ -84,12 +77,12 @@ export default function FormularioUsuario({ modo, editando = null, onGuardar, te
     const codigo = esPerfil ? (editando && editando.codigoPromo) || "" : v.codigoPromo;
     const msgs = [];
     const edad = calcularEdad(v.fechaNacimiento);
-    if (edad !== null && edad >= 50) msgs.push("🎉 Tendrás 50% de descuento en todos los productos por ser mayor de 50 años.");
-    else if (String(codigo).trim().toUpperCase() === CODIGO_PROMO) msgs.push("🎉 Código FELICES50: 10% de descuento de por vida.");
+    if (edad !== null && edad >= 50) msgs.push("Tendrás 50% de descuento en todos los productos por ser mayor de 50 años.");
+    else if (String(codigo).trim().toUpperCase() === CODIGO_PROMO) msgs.push("Código FELICES50: 10% de descuento de por vida.");
     if (v.correo.trim().toLowerCase().endsWith("@duoc.cl")) {
       msgs.push(v.fechaNacimiento
-        ? "🎂 Como estudiante Duoc recibirás una torta gratis el día de tu cumpleaños."
-        : "🎂 ¿Eres estudiante Duoc? Agrega tu fecha de nacimiento para recibir una torta gratis en tu cumpleaños.");
+        ? "Como estudiante Duoc recibirás una torta gratis el día de tu cumpleaños."
+        : "¿Eres estudiante Duoc? Agrega tu fecha de nacimiento para recibir una torta gratis en tu cumpleaños.");
     }
     return msgs.join(" ");
   })();
@@ -122,17 +115,17 @@ export default function FormularioUsuario({ modo, editando = null, onGuardar, te
 
   /* ----- Campos (se reutilizan en los tres modos) ----- */
   const cRun = (
-    <Campo id="run" label={esPerfil ? "RUN" : "RUN *"} ayuda={!esPerfil && "Sin puntos ni guion."} error={errores.run}>
+    <Campo id="run" className="col-12 col-md-6" label={esPerfil ? "RUN" : "RUN *"} ayuda={!esPerfil && "Sin puntos ni guion."} error={errores.run}>
       {esPerfil
-        ? <input type="text" id="run" value={v.run} readOnly />
+        ? <input type="text" id="run" className="form-control bg-body-tertiary" value={v.run} readOnly />
         : <input type="text" maxLength={9} placeholder="Ej: 190110222" autoComplete="off" readOnly={esAdmin && Boolean(editando)} {...campo("run")} />}
     </Campo>
   );
   const cCorreo = (
-    <Campo id="correo" label={esPerfil ? "Correo" : "Correo *"} className={esRegistro ? "completo" : ""}
+    <Campo id="correo" label={esPerfil ? "Correo" : "Correo *"} className={esRegistro ? "col-12" : "col-12 col-md-6"}
       ayuda={esRegistro && "Solo @duoc.cl, @profesor.duoc.cl o @gmail.com."} error={errores.correo}>
       {esPerfil
-        ? <input type="email" id="correo" value={v.correo} readOnly />
+        ? <input type="email" id="correo" className="form-control bg-body-tertiary" value={v.correo} readOnly />
         : <>
             <input type="email" list="dominios" placeholder={esRegistro ? "nombre@duoc.cl" : undefined} autoComplete={esRegistro ? "email" : "off"} {...campo("correo")} />
             <datalist id="dominios">
@@ -142,95 +135,83 @@ export default function FormularioUsuario({ modo, editando = null, onGuardar, te
     </Campo>
   );
   const cFecha = (
-    <Campo id="fechaNacimiento" label="Fecha de nacimiento" opcional={!esPerfil && "(opcional)"} error={errores.fechaNacimiento}>
+    <Campo id="fechaNacimiento" className="col-12 col-md-6" label="Fecha de nacimiento" opcional={!esPerfil && "(opcional)"} error={errores.fechaNacimiento}>
       <input type="date" autoComplete="bday" {...campo("fechaNacimiento")} />
     </Campo>
   );
   const cNombre = (
-    <Campo id="nombre" label="Nombre *" error={errores.nombre} max={50} largo={v.nombre.length}>
+    <Campo id="nombre" className="col-12 col-md-6" label="Nombre *" error={errores.nombre} max={50} largo={v.nombre.length}>
       <input type="text" maxLength={esRegistro ? 60 : undefined} autoComplete={esAdmin ? "off" : "given-name"} {...campo("nombre")} />
     </Campo>
   );
   const cApellidos = (
-    <Campo id="apellidos" label="Apellidos *" error={errores.apellidos} max={100} largo={v.apellidos.length}>
+    <Campo id="apellidos" className="col-12 col-md-6" label="Apellidos *" error={errores.apellidos} max={100} largo={v.apellidos.length}>
       <input type="text" maxLength={esRegistro ? 110 : undefined} autoComplete={esAdmin ? "off" : "family-name"} {...campo("apellidos")} />
     </Campo>
   );
   const cPassword = (
     <>
-      <Campo id="password" label="Contraseña" opcional={esAdmin && editando ? "(opcional)" : "*"}
+      <Campo id="password" className="col-12 col-md-6" label="Contraseña" opcional={esAdmin && editando ? "(opcional)" : "*"}
         ayuda={esAdmin ? "Entre 4 y 10 caracteres. Al editar, déjala vacía para no cambiarla." : "Entre 4 y 10 caracteres."} error={errores.password}>
         <input type="password" maxLength={10} autoComplete="new-password" {...campo("password")} />
       </Campo>
-      <Campo id="password2" label={esRegistro ? "Confirmar contraseña *" : "Confirmar contraseña"} error={errores.password2}>
+      <Campo id="password2" className="col-12 col-md-6" label={esRegistro ? "Confirmar contraseña *" : "Confirmar contraseña"} error={errores.password2}>
         <input type="password" maxLength={10} autoComplete="new-password" {...campo("password2")} />
       </Campo>
     </>
   );
   const cTelefono = (
-    <Campo id="telefono" label="Teléfono" opcional="(opcional)" error={errores.telefono}>
+    <Campo id="telefono" className="col-12 col-md-6" label="Teléfono" opcional="(opcional)" error={errores.telefono}>
       <input type="tel" placeholder={esRegistro ? "+56 9 1234 5678" : undefined} autoComplete="tel" {...campo("telefono")} />
     </Campo>
   );
   const cPromo = (
-    <Campo id="codigoPromo" label="Código promocional" opcional="(opcional)" error={errores.codigoPromo}>
+    <Campo id="codigoPromo" className="col-12 col-md-6" label="Código promocional" opcional="(opcional)" error={errores.codigoPromo}>
       <input type="text" placeholder={esRegistro ? "FELICES50" : undefined} autoComplete="off" {...campo("codigoPromo")} />
     </Campo>
   );
-  const cRegionComuna = (
-    <>
-      <Campo id="region" label="Región *" error={errores.region}>
-        <select autoComplete="address-level1" {...campo("region")} onChange={cambiarRegion}>
-          <option value="">-- Seleccione la región --</option>
-          {REGIONES.map(r => <option key={r.region}>{r.region}</option>)}
-        </select>
-      </Campo>
-      <Campo id="comuna" label="Comuna *" error={errores.comuna}>
-        <select autoComplete="address-level2" disabled={!comunas.length} {...campo("comuna")}>
-          <option value="">-- Seleccione la comuna --</option>
-          {comunas.map(c => <option key={c}>{c}</option>)}
-        </select>
-      </Campo>
-    </>
-  );
+  const cRegionComuna = <SelectorRegionComuna form={f} />;
   const cDireccion = (
-    <Campo id="direccion" label="Dirección *" className="completo" error={errores.direccion} max={300} largo={v.direccion.length}>
+    <Campo id="direccion" label="Dirección *" className="col-12" error={errores.direccion} max={300} largo={v.direccion.length}>
       <input type="text" placeholder={esRegistro ? "Calle, número, depto." : undefined} autoComplete="street-address" {...campo("direccion")} />
     </Campo>
   );
-  const cajaBeneficios = <div className="sugerencia" aria-live="polite">{beneficios}</div>;
+  const cajaBeneficios = beneficios ? <div className="alert alert-success my-3 py-2" aria-live="polite" data-testid="beneficios">{beneficios}</div> : null;
 
   return (
     <>
       {esPerfil && cajaBeneficios}
       <form noValidate onSubmit={guardar}>
-        <p className="resumen-errores" hidden={!f.resumen}>{f.resumen}</p>
-        <div className="form-grid">
+        {f.resumen && <div className="alert alert-danger" role="alert">{f.resumen}</div>}
+        <div className="row g-3">
           {esRegistro && <>
             {cRun}{cFecha}{cNombre}{cApellidos}{cCorreo}
-            <Campo id="correo2" label="Confirmar correo *" className="completo" error={errores.correo2}>
+            <Campo id="correo2" label="Confirmar correo *" className="col-12" error={errores.correo2}>
               <input type="email" autoComplete="off" {...campo("correo2")} />
             </Campo>
             {cPassword}{cTelefono}{cPromo}{cRegionComuna}{cDireccion}
-            <div className="campo campo-check completo">
-              <input type="checkbox" id="terminos" checked={v.terminos} className={errores.terminos ? "invalido" : undefined}
-                onChange={e => { cambiarValor("terminos", e.target.checked); }} />
-              <label htmlFor="terminos">Acepto los términos y condiciones de la tienda *</label>
-            </div>
-            <div className="campo completo" style={{ marginTop: -12 }}>
-              <small className="error" aria-live="polite">{errores.terminos}</small>
+            <div className="col-12">
+              <div className="form-check">
+                <input type="checkbox" id="terminos" checked={v.terminos} className={`form-check-input${errores.terminos ? " is-invalid" : ""}`}
+                  onChange={e => { cambiarValor("terminos", e.target.checked); }} />
+                <label htmlFor="terminos" className="form-check-label">Acepto los términos y condiciones de la tienda *</label>
+                {errores.terminos && <div className="invalid-feedback d-block" role="alert">{errores.terminos}</div>}
+              </div>
             </div>
           </>}
 
           {esPerfil && <>
             {cRun}{cCorreo}{cNombre}{cApellidos}{cFecha}{cTelefono}{cRegionComuna}{cDireccion}
-            <fieldset className="campo completo" style={{ border: 0, padding: 0 }}>
-              <legend style={{ fontWeight: 700, marginBottom: 6 }}>Mis categorías favoritas</legend>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 4 }}>
-                {CATEGORIAS.map((c, i) => (
-                  <label key={c} style={{ display: "flex", gap: 6, alignItems: "center", fontWeight: 400 }}>
-                    <input type="checkbox" id={`pref-${i}`} checked={v.preferencias.includes(c)} onChange={() => togglePreferencia(c)} /> {c}
-                  </label>
+            <fieldset className="col-12">
+              <legend className="form-label fs-6">Mis categorías favoritas</legend>
+              <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-1">
+                {Categorias.nombres().map((c, i) => (
+                  <div className="col" key={c}>
+                    <div className="form-check">
+                      <input type="checkbox" className="form-check-input" id={`pref-${i}`} checked={v.preferencias.includes(c)} onChange={() => togglePreferencia(c)} />
+                      <label className="form-check-label" htmlFor={`pref-${i}`}>{c}</label>
+                    </div>
+                  </div>
                 ))}
               </div>
             </fieldset>
@@ -238,8 +219,8 @@ export default function FormularioUsuario({ modo, editando = null, onGuardar, te
 
           {esAdmin && <>
             {cRun}
-            <Campo id="tipo" label="Tipo de usuario *" error={errores.tipo}>
-              <select {...campo("tipo")}>
+            <Campo id="tipo" className="col-12 col-md-6" label="Tipo de usuario *" error={errores.tipo}>
+              <select {...campo("tipo", "form-select")}>
                 <option value="">-- Seleccione el tipo --</option>
                 {TIPOS_USUARIO.map(t => <option key={t}>{t}</option>)}
               </select>
@@ -248,7 +229,7 @@ export default function FormularioUsuario({ modo, editando = null, onGuardar, te
           </>}
         </div>
         {!esPerfil && cajaBeneficios}
-        <button className="btn btn-bloque" type="submit">{textoBoton}</button>
+        <button className="btn btn-primary btn-lg w-100 mt-3" type="submit">{textoBoton}</button>
         {pie}
       </form>
     </>

@@ -30,45 +30,49 @@ export default function AdminUsuarios() {
 
   return (
     <>
-      <CabeceraAdmin titulo="Usuarios">
-        <Link className="btn" to="/admin/usuarios/nuevo">+ Nuevo usuario</Link>
+      <CabeceraAdmin titulo="Usuarios" subtitulo={`${lista.length} usuario${lista.length === 1 ? "" : "s"}`}>
+        <Link className="btn btn-primary" to="/admin/usuarios/nuevo">+ Nuevo usuario</Link>
       </CabeceraAdmin>
-      <section className="panel">
-        <div className="herramientas">
-          <label htmlFor="buscar-usuario" className="oculto-visual">Buscar usuario</label>
-          <input type="search" id="buscar-usuario" placeholder="Buscar por RUN, nombre o correo" value={buscar}
+      <section className="card shadow-sm"><div className="card-body">
+        <div className="row g-2 mb-3">
+          <div className="col-12 col-md-8">
+          <label htmlFor="buscar-usuario" className="visually-hidden">Buscar usuario</label>
+          <input type="search" id="buscar-usuario" className="form-control" placeholder="Buscar por RUN, nombre o correo" value={buscar}
             onChange={e => { setBuscar(e.target.value); setPagina(1); }} />
-          <label htmlFor="filtro-tipo" className="oculto-visual">Tipo de usuario</label>
-          <select id="filtro-tipo" value={tipo} onChange={e => { setTipo(e.target.value); setPagina(1); }}>
+          </div>
+          <div className="col-12 col-md-4">
+          <label htmlFor="filtro-tipo" className="visually-hidden">Tipo de usuario</label>
+          <select id="filtro-tipo" className="form-select" value={tipo} onChange={e => { setTipo(e.target.value); setPagina(1); }}>
             <option value="">Todos los tipos</option>
             {TIPOS_USUARIO.map(x => <option key={x}>{x}</option>)}
           </select>
+          </div>
         </div>
-        <div className="tabla-scroll">
-          <table className="tabla">
-            <thead><tr><th>RUN</th><th>Nombre</th><th>Correo</th><th>Tipo</th><th>Comuna</th><th>Acciones</th></tr></thead>
+        <div className="table-responsive">
+          <table className="table table-hover align-middle">
+            <thead className="table-light"><tr><th>RUN</th><th>Nombre</th><th>Correo</th><th>Tipo</th><th>Comuna</th><th>Acciones</th></tr></thead>
             <tbody>
               {pag.visibles.length ? pag.visibles.map(u => (
                 <tr key={u.run}>
                   <td>{u.run}</td>
                   <td>{u.nombre} {u.apellidos}</td>
                   <td>{u.correo}</td>
-                  <td><span className="estado">{u.tipo}</span></td>
+                  <td><span className={`badge ${u.tipo === "Administrador" ? "text-bg-primary" : u.tipo === "Vendedor" ? "text-bg-info" : "text-bg-light border"}`}>{u.tipo}</span></td>
                   <td>{u.comuna}</td>
-                  <td className="acciones">
-                    <Link className="btn btn-borde btn-chico" to={`/admin/usuarios/${encodeURIComponent(u.run)}`}>Ver</Link>
-                    <Link className="btn btn-chico" to={`/admin/usuarios/${encodeURIComponent(u.run)}/editar`}>Editar</Link>
+                  <td><div className="d-flex flex-wrap gap-1">
+                    <Link className="btn btn-outline-primary btn-sm" to={`/admin/usuarios/${encodeURIComponent(u.run)}`}>Ver</Link>
+                    <Link className="btn btn-primary btn-sm" to={`/admin/usuarios/${encodeURIComponent(u.run)}/editar`}>Editar</Link>
                     {u.correo !== sesion.correo && (
-                      <button className="btn btn-peligro btn-chico" type="button" onClick={() => eliminar(u.run)}>Eliminar</button>
+                      <button className="btn btn-outline-danger btn-sm" type="button" onClick={() => eliminar(u.run)}>Eliminar</button>
                     )}
-                  </td>
+                  </div></td>
                 </tr>
-              )) : <tr><td colSpan="6">No hay usuarios que coincidan.</td></tr>}
+              )) : <tr><td colSpan="6" className="text-center py-4">No hay usuarios que coincidan.</td></tr>}
             </tbody>
           </table>
         </div>
         <Paginacion total={pag.total} pagina={pag.pagina} onCambiar={setPagina} />
-      </section>
+      </div></section>
     </>
   );
 }

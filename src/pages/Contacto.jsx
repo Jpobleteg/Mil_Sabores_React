@@ -4,6 +4,7 @@ import { useTitulo } from "../hooks/useStore.js";
 import { useFormulario } from "../hooks/useFormulario.js";
 import { useAvisos } from "../context/AvisosContext.jsx";
 import Campo from "../components/Campo.jsx";
+import TarjetaFormulario from "../components/TarjetaFormulario.jsx";
 
 /* Contacto
    Nombre: requerido, máx. 100
@@ -31,25 +32,20 @@ export default function Contacto() {
   });
 
   return (
-    <section className="tarjeta-form" aria-labelledby="titulo-contacto">
-      <header className="marca">
-        <img src="/img/logo.svg" alt="Logo Pastelería Mil Sabores" width="80" height="80" />
-        <p style={{ fontFamily: "var(--fuente-titulo)", fontSize: "1.8rem", color: "var(--chocolate)", margin: 0 }}>Pastelería Mil Sabores</p>
-        <h1 id="titulo-contacto" style={{ fontFamily: "var(--fuente-texto)", fontWeight: 700, fontSize: "1.2rem", color: "var(--texto)" }}>Formulario de contacto</h1>
-      </header>
-      <form noValidate onSubmit={enviarMensaje}>
-        <p className="resumen-errores" hidden={!resumen}>{resumen}</p>
-        <Campo id="nombre" label="Nombre completo *" error={errores.nombre} max={100} largo={valores.nombre.length}>
+    <TarjetaFormulario titulo="Formulario de contacto" subtitulo="Pastelería Mil Sabores" ancho={640} idTitulo="titulo-contacto">
+      <form noValidate onSubmit={enviarMensaje} className="row g-3">
+        {resumen && <div className="col-12"><div className="alert alert-danger mb-0" role="alert">{resumen}</div></div>}
+        <Campo id="nombre" label="Nombre completo *" error={errores.nombre} max={100} largo={valores.nombre.length} className="col-12 col-md-6">
           <input type="text" autoComplete="name" {...campo("nombre")} />
         </Campo>
-        <Campo id="correo" label="Correo" opcional="(opcional, para responderte)" error={errores.correo}>
+        <Campo id="correo" label="Correo" opcional="(opcional)" error={errores.correo} className="col-12 col-md-6">
           <input type="email" placeholder="nombre@gmail.com" autoComplete="email" {...campo("correo")} />
         </Campo>
         <Campo id="comentario" label="Comentario *" error={errores.comentario} max={500} largo={valores.comentario.length}>
           <textarea rows="5" placeholder="Cuéntanos en qué te podemos ayudar" {...campo("comentario")} />
         </Campo>
-        <button className="btn btn-bloque" type="submit">Enviar mensaje</button>
+        <div className="col-12"><button className="btn btn-primary btn-lg w-100" type="submit">Enviar mensaje</button></div>
       </form>
-    </section>
+    </TarjetaFormulario>
   );
 }

@@ -41,20 +41,20 @@ export function useFormulario(inicial, reglas, dependientes = {}) {
 
   const alSalir = e => validarCampo(e.target.id);
 
-  /* Clase CSS "valido" / "invalido" del campo */
+  /* Clase de Bootstrap según el estado del campo: is-invalid / is-valid */
   const clase = id => {
-    if (!(id in errores)) return undefined;
-    if (errores[id]) return "invalido";
-    return String(valores[id] ?? "").trim() !== "" ? "valido" : undefined;
+    if (!(id in errores)) return "";
+    if (errores[id]) return "is-invalid";
+    return String(valores[id] ?? "").trim() !== "" ? "is-valid" : "";
   };
 
-  /* Props listas para un <input>, <select> o <textarea> */
-  const campo = id => ({
+  /* Props listas para un <input>, <select> (base "form-select") o <textarea> */
+  const campo = (id, base = "form-control") => ({
     id,
     value: valores[id] ?? "",
     onChange: alCambiar,
     onBlur: alSalir,
-    className: clase(id),
+    className: `${base} ${clase(id)}`.trim(),
     "aria-invalid": errores[id] ? "true" : "false"
   });
 
@@ -68,7 +68,7 @@ export function useFormulario(inicial, reglas, dependientes = {}) {
     const ok = Object.values(nuevos).every(m => !m);
     if (!ok) {
       setResumen("Revisa los campos marcados en rojo antes de continuar.");
-      setTimeout(() => form.querySelector(".invalido")?.focus());
+      setTimeout(() => form.querySelector(".is-invalid")?.focus());
       return;
     }
     setResumen("");

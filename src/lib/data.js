@@ -1,26 +1,30 @@
 /* =========================================================
    data.js — Datos base del sistema (catálogo, categorías,
    regiones/comunas y usuarios iniciales).
+   precioOferta (opcional) marca el producto como oferta.
    Las imágenes están en /public/img.
    Los productos y usuarios se copian a localStorage la primera
    vez, así el administrador puede crearlos / editarlos.
    ========================================================= */
 
-export const CATEGORIAS = [
-  "Tortas Cuadradas",
-  "Tortas Circulares",
-  "Postres Individuales",
-  "Productos Sin Azúcar",
-  "Pastelería Tradicional",
-  "Productos Sin Gluten",
-  "Productos Vegana",
-  "Tortas Especiales"
+export const CATEGORIAS_BASE = [
+  { id: "tortas-cuadradas", nombre: "Tortas Cuadradas", descripcion: "Tortas para celebraciones grandes, fáciles de porcionar." },
+  { id: "tortas-circulares", nombre: "Tortas Circulares", descripcion: "Nuestras tortas clásicas de siempre." },
+  { id: "postres-individuales", nombre: "Postres Individuales", descripcion: "Porciones individuales para darse un gusto." },
+  { id: "sin-azucar", nombre: "Productos Sin Azúcar", descripcion: "Endulzados con fruta y stevia." },
+  { id: "pasteleria-tradicional", nombre: "Pastelería Tradicional", descripcion: "Recetas heredadas de las abuelas fundadoras." },
+  { id: "sin-gluten", nombre: "Productos Sin Gluten", descripcion: "Elaborados en una zona separada de la cocina." },
+  { id: "veganos", nombre: "Productos Vegana", descripcion: "Sin ingredientes de origen animal." },
+  { id: "tortas-especiales", nombre: "Tortas Especiales", descripcion: "Diseñadas a pedido para tus momentos importantes." }
 ];
+
+/* Compatibilidad: lista de nombres de las categorías base */
+export const CATEGORIAS = CATEGORIAS_BASE.map(c => c.nombre);
 
 export const PRODUCTOS_BASE = [
   { codigo: "TC001", categoria: "Tortas Cuadradas", nombre: "Torta Cuadrada de Chocolate", precio: 45000, stock: 10, stockCritico: 3, personalizable: true,
     descripcion: "Deliciosa torta de chocolate con capas de ganache y un toque de avellanas. Personalizable con mensajes especiales." },
-  { codigo: "TC002", categoria: "Tortas Cuadradas", nombre: "Torta Cuadrada de Frutas", precio: 50000, stock: 8, stockCritico: 3, personalizable: true,
+  { codigo: "TC002", precioOferta: 42000, categoria: "Tortas Cuadradas", nombre: "Torta Cuadrada de Frutas", precio: 50000, stock: 8, stockCritico: 3, personalizable: true,
     descripcion: "Una mezcla de frutas frescas y crema chantilly sobre un suave bizcocho de vainilla, ideal para celebraciones." },
   { codigo: "TT001", categoria: "Tortas Circulares", nombre: "Torta Circular de Vainilla", precio: 40000, stock: 12, stockCritico: 3, personalizable: true,
     descripcion: "Bizcocho de vainilla clásico relleno con crema pastelera y cubierto con un glaseado dulce, perfecto para cualquier ocasión." },
@@ -28,15 +32,15 @@ export const PRODUCTOS_BASE = [
     descripcion: "Torta tradicional chilena con manjar y nueces, un deleite para los amantes de los sabores dulces y clásicos." },
   { codigo: "PI001", categoria: "Postres Individuales", nombre: "Mousse de Chocolate", precio: 5000, stock: 30, stockCritico: 5, personalizable: false,
     descripcion: "Postre individual cremoso y suave, hecho con chocolate de alta calidad, ideal para los amantes del chocolate." },
-  { codigo: "PI002", categoria: "Postres Individuales", nombre: "Tiramisú Clásico", precio: 5500, stock: 25, stockCritico: 5, personalizable: false,
+  { codigo: "PI002", precioOferta: 4500, categoria: "Postres Individuales", nombre: "Tiramisú Clásico", precio: 5500, stock: 25, stockCritico: 5, personalizable: false,
     descripcion: "Un postre italiano individual con capas de café, mascarpone y cacao, perfecto para finalizar cualquier comida." },
   { codigo: "PSA001", categoria: "Productos Sin Azúcar", nombre: "Torta Sin Azúcar de Naranja", precio: 48000, stock: 6, stockCritico: 2, personalizable: true,
     descripcion: "Torta ligera y deliciosa, endulzada naturalmente, ideal para quienes buscan opciones más saludables." },
-  { codigo: "PSA002", categoria: "Productos Sin Azúcar", nombre: "Cheesecake Sin Azúcar", precio: 47000, stock: 5, stockCritico: 2, personalizable: false,
+  { codigo: "PSA002", precioOferta: 39900, categoria: "Productos Sin Azúcar", nombre: "Cheesecake Sin Azúcar", precio: 47000, stock: 5, stockCritico: 2, personalizable: false,
     descripcion: "Suave y cremoso, este cheesecake es una opción perfecta para disfrutar sin culpa." },
   { codigo: "PT001", categoria: "Pastelería Tradicional", nombre: "Empanada de Manzana", precio: 3000, stock: 40, stockCritico: 8, personalizable: false,
     descripcion: "Pastelería tradicional rellena de manzanas especiadas, perfecta para un dulce desayuno o merienda." },
-  { codigo: "PT002", categoria: "Pastelería Tradicional", nombre: "Tarta de Santiago", precio: 6000, stock: 15, stockCritico: 4, personalizable: false,
+  { codigo: "PT002", precioOferta: 4900, categoria: "Pastelería Tradicional", nombre: "Tarta de Santiago", precio: 6000, stock: 15, stockCritico: 4, personalizable: false,
     descripcion: "Tradicional tarta española hecha con almendras, azúcar y huevos, una delicia para los amantes de los postres clásicos." },
   { codigo: "PG001", categoria: "Productos Sin Gluten", nombre: "Brownie Sin Gluten", precio: 4000, stock: 20, stockCritico: 5, personalizable: false,
     descripcion: "Rico y denso, este brownie es perfecto para quienes necesitan evitar el gluten sin sacrificar el sabor." },
@@ -44,9 +48,9 @@ export const PRODUCTOS_BASE = [
     descripcion: "Suave y esponjoso, ideal para sándwiches o para acompañar cualquier comida." },
   { codigo: "PV001", categoria: "Productos Vegana", nombre: "Torta Vegana de Chocolate", precio: 50000, stock: 4, stockCritico: 2, personalizable: true,
     descripcion: "Torta de chocolate húmeda y deliciosa, hecha sin productos de origen animal, perfecta para veganos." },
-  { codigo: "PV002", categoria: "Productos Vegana", nombre: "Galletas Veganas de Avena", precio: 4500, stock: 35, stockCritico: 6, personalizable: false,
+  { codigo: "PV002", precioOferta: 3500, categoria: "Productos Vegana", nombre: "Galletas Veganas de Avena", precio: 4500, stock: 35, stockCritico: 6, personalizable: false,
     descripcion: "Crujientes y sabrosas, estas galletas son una excelente opción para un snack saludable y vegano." },
-  { codigo: "TE001", categoria: "Tortas Especiales", nombre: "Torta Especial de Cumpleaños", precio: 55000, stock: 7, stockCritico: 2, personalizable: true,
+  { codigo: "TE001", precioOferta: 49000, categoria: "Tortas Especiales", nombre: "Torta Especial de Cumpleaños", precio: 55000, stock: 7, stockCritico: 2, personalizable: true,
     descripcion: "Diseñada especialmente para celebraciones, personalizable con decoraciones y mensajes únicos." },
   { codigo: "TE002", categoria: "Tortas Especiales", nombre: "Torta Especial de Boda", precio: 60000, stock: 3, stockCritico: 1, personalizable: true,
     descripcion: "Elegante y deliciosa, esta torta está diseñada para ser el centro de atención en cualquier boda." }
