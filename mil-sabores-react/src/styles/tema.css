@@ -1,0 +1,193 @@
+/* =========================================================
+   Pastelería Mil Sabores — Tema sobre Bootstrap 5
+   Bootstrap aporta la grilla responsiva y los componentes
+   (navbar, cards, formularios, tablas, badges, alertas).
+   Este archivo aplica el diseño visual del equipo:
+   fondo blanco, bordó y rosa oscuro, botones redondeados,
+   Licorice para títulos y Sulphur Point para el texto.
+   ========================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Licorice&family=Sulphur+Point:wght@300;400;700&display=swap");
+
+:root {
+  --ms-crema: #fcf9f3;          /* blanco cálido de las secciones */
+  --ms-bordo: #7a0b0b;          /* botones principales */
+  --ms-bordo-oscuro: #5c0808;
+  --ms-rosa: #6d414b;           /* rosa oscuro: barra de sesión y footer */
+  --ms-rosa-claro: #f6eef0;
+  --ms-chocolate: #7a0b0b;      /* acentos (antes chocolate) */
+  --ms-chocolate-oscuro: #6E360F; /* menú lateral del administrador */
+  --ms-texto: #5D4037;
+  --ms-texto-suave: #8D6E63;
+  --ms-borde: #f0e9e3;
+
+  /* Variables de Bootstrap redefinidas con la paleta del diseño */
+  --bs-body-bg: #ffffff;
+  --bs-body-color: var(--ms-texto);
+  --bs-body-font-family: "Sulphur Point", "Segoe UI", system-ui, sans-serif;
+  --bs-primary: #7a0b0b;
+  --bs-primary-rgb: 122, 11, 11;
+  --bs-link-color: #6d414b;
+  --bs-link-color-rgb: 109, 65, 75;
+  --bs-link-hover-color: #7a0b0b;
+  --bs-link-hover-color-rgb: 122, 11, 11;
+  --bs-border-color: #f0e9e3;
+  --bs-secondary-color: #8D6E63;
+  --bs-border-radius: .875rem;
+  --bs-border-radius-lg: 1.25rem;
+  --bs-focus-ring-color: rgba(122, 11, 11, .2);
+}
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+#root > main { flex: 1; }
+
+h1, h2, .titulo-marca { font-family: "Licorice", cursive; color: var(--ms-texto); font-weight: 400; }
+h1 { font-size: calc(1.6rem + 1.8vw); }
+h2 { font-size: calc(1.4rem + 1vw); }
+h3, h4, h5, h6 { color: var(--ms-texto); font-weight: 700; }
+
+/* ---------- Botones con la paleta (redondeados como el diseño original) ---------- */
+.btn { --bs-btn-border-radius: 999px; --bs-btn-border-width: 2px; }
+.btn-sm { --bs-btn-border-radius: 999px; }
+.btn-lg { --bs-btn-border-radius: 999px; }
+.btn-primary {
+  --bs-btn-bg: #7a0b0b; --bs-btn-border-color: #7a0b0b;
+  --bs-btn-hover-bg: #5c0808; --bs-btn-hover-border-color: #5c0808;
+  --bs-btn-active-bg: #5c0808; --bs-btn-active-border-color: #5c0808;
+  --bs-btn-disabled-bg: #b07a7a; --bs-btn-disabled-border-color: #b07a7a;
+}
+.btn-outline-primary {
+  --bs-btn-color: #7a0b0b; --bs-btn-border-color: #7a0b0b;
+  --bs-btn-hover-bg: #7a0b0b; --bs-btn-hover-border-color: #7a0b0b; --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #5c0808; --bs-btn-active-border-color: #5c0808;
+}
+/* Botón "Añadir": contorno rosa oscuro */
+.btn-rosa {
+  --bs-btn-bg: transparent; --bs-btn-border-color: #6d414b; --bs-btn-color: #6d414b;
+  --bs-btn-hover-bg: #6d414b; --bs-btn-hover-border-color: #6d414b; --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #6d414b; --bs-btn-active-color: #fff;
+  --bs-btn-disabled-bg: transparent; --bs-btn-disabled-border-color: #c9b8bc; --bs-btn-disabled-color: #a9979b;
+  font-weight: 700;
+}
+.btn-carrito { --bs-btn-color: var(--ms-texto); --bs-btn-hover-color: #7a0b0b; --bs-btn-border-color: transparent; --bs-btn-hover-border-color: transparent; }
+.btn-carrito .badge { background: transparent !important; color: #7a0b0b !important; }
+.btn { font-weight: 700; }
+.text-chocolate { color: var(--ms-chocolate) !important; }
+.bg-rosa-claro { background: var(--ms-rosa-claro) !important; }
+.bg-crema { background: var(--ms-crema) !important; }
+
+/* ---------- Formularios ---------- */
+.form-control, .form-select { border-color: var(--ms-borde); background-color: #fff; }
+.form-control:focus, .form-select:focus { border-color: var(--ms-chocolate); box-shadow: 0 0 0 .2rem rgba(139, 69, 19, .2); }
+.form-label { font-weight: 700; }
+.form-label .opcional { font-weight: 400; color: var(--ms-texto-suave); font-size: .9em; }
+.contador { font-size: .8rem; color: var(--ms-texto-suave); }
+.contador.excedido { color: var(--bs-danger); font-weight: 700; }
+
+/* ---------- Header ---------- */
+.navbar-ms { background: #fff; }
+.navbar-ms .navbar-brand { font-family: "Pacifico", cursive; color: var(--ms-chocolate); font-size: 1.5rem; line-height: 1.1; }
+.navbar-ms .navbar-brand small { display: block; font-family: "Lato", sans-serif; font-size: .62rem; letter-spacing: .15em; color: var(--ms-texto-suave); font-weight: 700; }
+.navbar-ms .nav-link { color: var(--ms-texto); font-weight: 700; border-radius: 999px; padding-inline: .9rem !important; }
+.navbar-ms .nav-link:hover, .navbar-ms .nav-link.active { background: var(--ms-rosa-claro); color: #7a0b0b; }
+.navbar-ms .dropdown-menu { border-color: var(--ms-borde); }
+.navbar-ms .dropdown-item.active, .navbar-ms .dropdown-item:active { background: var(--ms-chocolate); }
+
+/* ---------- Hero ---------- */
+.hero-ms { background: #fff; border-radius: 1.25rem; box-shadow: 0 6px 18px rgba(93, 64, 55, .12); }
+.etiqueta-ms { display: inline-block; background: var(--ms-rosa-claro); color: var(--ms-texto); padding: .2em .9em; border-radius: 999px; font-weight: 700; font-size: .85rem; }
+
+/* ---------- Tarjetas de producto ---------- */
+.card { border: 0; --bs-card-bg: #fff; box-shadow: 0 6px 18px rgba(93, 64, 55, .12); }
+.card-producto { transition: transform .2s, box-shadow .2s; }
+.card-producto:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(93, 64, 55, .15); }
+.card-producto .card-img-top { aspect-ratio: 4 / 3; object-fit: cover; background: var(--ms-crema); }
+.card-producto .categoria { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ms-texto-suave); font-weight: 700; }
+.card-producto .card-title a { color: var(--ms-texto); text-decoration: none; }
+.card-producto .card-title a:hover { text-decoration: underline; }
+.precio { color: var(--ms-texto); font-weight: 700; }
+.precio-anterior { color: var(--ms-texto-suave); text-decoration: line-through; font-size: .9em; }
+.badge-oferta { position: absolute; top: .75rem; left: .75rem; }
+
+/* ---------- Categorías ---------- */
+.card-categoria { text-decoration: none; color: inherit; transition: transform .2s; }
+.card-categoria:hover { transform: translateY(-3px); }
+.card-categoria.activa { outline: 3px solid #7a0b0b; }
+.card-categoria img { aspect-ratio: 1; object-fit: cover; background: var(--ms-rosa-claro); }
+
+/* ---------- Detalle ---------- */
+.miniatura { border: 2px solid transparent; border-radius: .5rem; padding: 0; background: none; width: 80px; }
+.miniatura[aria-pressed="true"] { border-color: #7a0b0b; }
+.miniatura img { width: 100%; border-radius: .4rem; }
+
+/* ---------- Carrito / checkout ---------- */
+.mini-img { width: 56px; height: 42px; object-fit: cover; border-radius: .4rem; background: var(--ms-rosa-claro); }
+.cantidad-ms { width: 4.5rem; text-align: center; }
+.estado-pedido { display: flex; list-style: none; padding: 0; margin: 1rem 0; gap: .5rem; }
+.estado-pedido li { flex: 1; text-align: center; font-size: .8rem; color: var(--ms-texto-suave); }
+.estado-pedido li::before { content: ""; display: block; width: 14px; height: 14px; margin: 0 auto 4px; border-radius: 50%; background: var(--ms-borde); }
+.estado-pedido li.activo { color: var(--ms-chocolate); font-weight: 700; }
+.estado-pedido li.activo::before { background: var(--ms-chocolate); box-shadow: 0 0 0 3px var(--ms-rosa); }
+
+/* ---------- Blog / artículos ---------- */
+.articulo img { border-radius: 1rem; }
+.articulo blockquote { border-left: 4px solid var(--ms-rosa); padding-left: 1rem; font-style: italic; }
+
+/* ---------- Footer ---------- */
+.footer-ms { background: #6d414b; color: #F6E6D8; }
+.footer-ms h2 { color: #fff; font-size: 1.3rem; }
+.footer-ms a { color: #fff; }
+.footer-ms .pagos span { background: #fff; color: #6d414b; }
+.footer-ms .pagos span { border: 1px solid rgba(255, 255, 255, .4); border-radius: .4rem; padding: .1em .5em; font-size: .75rem; font-weight: 700; }
+
+/* ---------- Avisos (toast) ---------- */
+.avisos-ms { position: fixed; right: 1rem; bottom: 1rem; z-index: 1100; display: flex; flex-direction: column; gap: .5rem; }
+.avisos-ms .toast { display: block; opacity: 1; transition: opacity .4s, transform .4s; }
+.avisos-ms .toast.salir { opacity: 0; transform: translateY(10px); }
+
+/* ---------- Panel administrador ---------- */
+.admin-ms { min-height: 100vh; background: #f6f1ea; }
+.admin-sidebar { width: 250px; background: var(--ms-chocolate-oscuro); color: #fff; flex-shrink: 0; }
+.admin-sidebar .marca { font-family: "Licorice", cursive; font-size: 1.6rem !important; color: #fff; text-decoration: none; font-size: 1.3rem; }
+.admin-sidebar .nav-link { color: #f6e7d8; font-weight: 700; border-radius: .6rem; }
+.admin-sidebar .nav-link:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.admin-sidebar .nav-link.active { background: #f6e6d8; color: var(--ms-chocolate-oscuro); }
+@media (max-width: 991.98px) {
+  .admin-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 1056; transform: translateX(-100%); transition: transform .25s; }
+  .admin-sidebar.abierto { transform: none; }
+}
+.stat-ms { border: 0; color: #fff; }
+.stat-ms .display-6 { font-weight: 900; }
+.acceso-ms { text-decoration: none; color: inherit; transition: transform .2s, box-shadow .2s; }
+.acceso-ms:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(93, 64, 55, .15); }
+.acceso-ms .icono { font-size: 1.8rem; }
+.tabla-img { width: 48px; height: 36px; object-fit: cover; border-radius: .3rem; }
+.estado-En-preparación { background: #fff3cd; color: #7a5a00; }
+.estado-Listo { background: #cff4fc; color: #055160; }
+.estado-En-camino { background: #e2d9f3; color: #432874; }
+.estado-Entregado { background: #d1e7dd; color: #0f5132; }
+
+/* ---------- Impresión de boleta ---------- */
+@media print {
+  .navbar-ms, .footer-ms, .no-imprimir, .admin-sidebar, .avisos-ms { display: none !important; }
+  body, .admin-ms { background: #fff; }
+}
+
+/* Marca en la fila superior del header */
+.navbar-brand-ms { font-family: "Licorice", cursive; color: var(--ms-texto); font-size: 1.45rem; line-height: 1.1; text-decoration: none; }
+.navbar-brand-ms small { display: block; font-family: "Sulphur Point", sans-serif; font-size: .6rem; letter-spacing: .15em; color: var(--ms-texto-suave); font-weight: 700; }
+.navbar-brand-ms:hover { color: #7a0b0b; }
+.navbar-ms { border-bottom-width: 3px; }
+@media (min-width: 992px) { .carrito-fijo { position: sticky; top: 130px; } }
+
+/* Barra de sesión (rosa oscuro con enlaces blancos, como el diseño original) */
+.barra-sesion-ms { background: #6d414b; color: #fff; }
+.barra-sesion-ms a, .barra-sesion-ms .btn-link { color: #fff; }
+/* Inputs sin borde marcado, fondo cálido */
+.form-control, .form-select { background-color: #fcf9f3; }
+.form-control[readonly] { background-color: #f3eee8 !important; }
+.form-control:focus, .form-select:focus { border-color: #7a0b0b; box-shadow: 0 0 0 .2rem rgba(122, 11, 11, .15); background-color: #fff; }
+.bg-crema { background: #fcf9f3 !important; }
+.form-check-input:checked { background-color: #7a0b0b; border-color: #7a0b0b; }
+.page-link { color: #7a0b0b; }
+.active > .page-link, .page-link.active { background-color: #7a0b0b; border-color: #7a0b0b; }
+.text-bg-primary { background-color: #7a0b0b !important; }
