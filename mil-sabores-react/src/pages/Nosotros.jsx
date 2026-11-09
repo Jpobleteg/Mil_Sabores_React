@@ -1,9 +1,9 @@
 import { useTitulo } from "../hooks/useStore.js";
 
 const EQUIPO = [
-  { id: "I1", nombre: "Integrante 1", rol: "Tienda: home, catálogo, detalle de producto y carrito." },
-  { id: "I2", nombre: "Integrante 2", rol: "Formularios: registro, inicio de sesión, contacto y validaciones JavaScript." },
-  { id: "I3", nombre: "Integrante 3", rol: "Panel administrador: mantenedores de productos, usuarios y órdenes." }
+  { id: "I1", nombre: "Javiera", rol: "Tienda: home, catálogo, detalle de producto y carrito." },
+  { id: "I2", nombre: "Sigrid", rol: "Formularios: registro, inicio de sesión, contacto y validaciones JavaScript." },
+  { id: "I3", nombre: "Sigrid/Javiera", rol: "Panel administrador: mantenedores de productos, usuarios y órdenes." }
 ];
 
 export default function Nosotros() {
