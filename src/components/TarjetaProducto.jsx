@@ -3,18 +3,13 @@ import { Carrito, Productos, enOferta } from "../lib/store.js";
 import { useAvisos } from "../context/AvisosContext.jsx";
 import Precio from "./Precio.jsx";
 
-/* Tarjeta de producto (card de Bootstrap) reutilizable en home, catálogo,
-   categorías, ofertas, relacionados y carrito.
-   Props:
-     producto  → objeto del catálogo (obligatorio)
-     compacta  → versión pequeña sin descripción ni categoría
-     onAgregar → función opcional; si no se pasa, añade al carrito */
+/* Tarjeta de producto (card de Bootstrap) */
 export default function TarjetaProducto({ producto: p, compacta = false, onAgregar }) {
   const avisar = useAvisos();
   const agotado = p.stock <= 0;
   const url = `/productos/${encodeURIComponent(p.codigo)}`;
 
-  /* Añade 1 unidad; las tortas personalizables se agregan en tamaño pequeño */
+
   const agregar = () => {
     if (onAgregar) return onAgregar(p);
     const tamano = Productos.esTorta(p) && p.personalizable ? "S" : "";

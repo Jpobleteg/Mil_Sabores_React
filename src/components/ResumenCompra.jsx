@@ -1,7 +1,5 @@
 import { Carrito, formatoCLP } from "../lib/store.js";
 
-/* Resumen de montos de una compra (subtotal, descuentos y total).
-   Props: resumen → objeto devuelto por Carrito.resumen() */
 export default function ResumenCompra({ resumen: r }) {
   return (
     <dl className="row mb-0" data-testid="resumen-compra">

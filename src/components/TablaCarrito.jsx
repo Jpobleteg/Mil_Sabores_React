@@ -3,11 +3,7 @@ import { Link } from "react-router-dom";
 import { TAMANOS } from "../lib/data.js";
 import { MAX_POR_ITEM, Productos, formatoCLP } from "../lib/store.js";
 
-/* Tabla de productos del carrito / boleta (Bootstrap table).
-   Props:
-     lineas       → [{ clave, codigo, producto, cantidad, unitario, subtotal, tamano, mensaje }]
-     editable     → muestra botones − / + y Eliminar
-     onCambiar(clave, cantidad), onEliminar(clave) → eventos de edición */
+/* Tabla de productos del carrito / boleta (Bootstrap table).*/
 export default function TablaCarrito({ lineas, editable = false, onCambiar, onEliminar }) {
   return (
     <div className="table-responsive">
@@ -44,7 +40,6 @@ export default function TablaCarrito({ lineas, editable = false, onCambiar, onEl
   );
 }
 
-/* Imagen de la línea; en boletas antiguas se busca el producto por código */
 function imagenLinea(l) {
   const p = l.producto || Productos.buscar(l.codigo);
   return p ? Productos.imagen(p) : "/img/logo.svg";

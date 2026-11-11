@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 
-/* Avisos flotantes (toast de Bootstrap) disponibles en toda la app:
-   const avisar = useAvisos();  avisar("Mensaje", "ok" | "error") */
+
 const AvisosContext = createContext(() => {});
 
 export function AvisosProvider({ children }) {

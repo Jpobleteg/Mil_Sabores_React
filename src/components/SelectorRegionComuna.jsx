@@ -1,8 +1,7 @@
 import { REGIONES } from "../lib/data.js";
 import Campo from "./Campo.jsx";
 
-/* Selects dependientes Región → Comuna, conectados a useFormulario.
-   Props: form (objeto que devuelve useFormulario), deshabilitado, columnas (clases de cada campo) */
+
 export default function SelectorRegionComuna({ form, deshabilitado = false, columnas = "col-12 col-md-6" }) {
   const { valores: v, errores, campo, cambiarValor, setValores, setErrores } = form;
   const comunas = REGIONES.find(r => r.region === v.region)?.comunas || [];

@@ -1,5 +1,4 @@
-/* Contenedor centrado para formularios (login, registro, contacto, perfil).
-   Props: titulo, subtitulo, logo (muestra el logo), ancho (px máximo), id del título */
+
 export default function TarjetaFormulario({ titulo, subtitulo, logo = true, ancho = 720, idTitulo = "titulo-form", children }) {
   return (
     <div className="container py-4 py-lg-5">
