@@ -3,9 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Carrito, Categorias, Sesion, formatoCLP } from "../lib/store.js";
 import { useStore } from "../hooks/useStore.js";
 
-/* Barra de navegación responsiva (navbar de Bootstrap).
-   En pantallas pequeñas el menú se colapsa y se abre con el botón ☰;
-   el estado "abierto" lo maneja React (no se usa el JS de Bootstrap). */
+/* Barra de navegación responsiva (navbar de Bootstrap). */
 export default function Header() {
   useStore();
   const [abierto, setAbierto] = useState(false);
