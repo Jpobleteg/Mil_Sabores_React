@@ -1,8 +1,4 @@
-/* =========================================================
-   store.js — Reglas de negocio sobre la fuente de datos (db.js):
-   catálogo, categorías, usuarios, sesión, carrito, descuentos,
-   pasarela de pago simulada, órdenes y reportes.
-   ========================================================= */
+
 import { TAMANOS } from "./data.js";
 import { calcularEdad } from "./validaciones.js";
 import { db, LS, leer, guardar, notificar } from "./db.js";

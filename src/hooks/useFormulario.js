@@ -1,13 +1,6 @@
 import { useState } from "react";
 
-/* =========================================================
-   useFormulario — validación de formularios con React.
-   reglas = { idCampo: (valor, valores) => "mensaje" | "" }
-   Se valida al escribir (onChange), al salir del campo (onBlur)
-   y al enviar, igual que en la versión HTML original.
-   dependientes = { correo: ["correo2"] } revalida la confirmación
-   cuando cambia el campo original.
-   ========================================================= */
+
 export function useFormulario(inicial, reglas, dependientes = {}) {
   const [valores, setValores] = useState(inicial);
   const [errores, setErrores] = useState({});
@@ -41,14 +34,13 @@ export function useFormulario(inicial, reglas, dependientes = {}) {
 
   const alSalir = e => validarCampo(e.target.id);
 
-  /* Clase de Bootstrap según el estado del campo: is-invalid / is-valid */
   const clase = id => {
     if (!(id in errores)) return "";
     if (errores[id]) return "is-invalid";
     return String(valores[id] ?? "").trim() !== "" ? "is-valid" : "";
   };
 
-  /* Props listas para un <input>, <select> (base "form-select") o <textarea> */
+  
   const campo = (id, base = "form-control") => ({
     id,
     value: valores[id] ?? "",
@@ -58,7 +50,7 @@ export function useFormulario(inicial, reglas, dependientes = {}) {
     "aria-invalid": errores[id] ? "true" : "false"
   });
 
-  /* Envío: valida todo; si hay errores muestra el resumen y enfoca el primero */
+
   const enviar = alEnviar => e => {
     e.preventDefault();
     const form = e.currentTarget;

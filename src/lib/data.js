@@ -1,11 +1,3 @@
-/* =========================================================
-   data.js — Datos base del sistema (catálogo, categorías,
-   regiones/comunas y usuarios iniciales).
-   precioOferta (opcional) marca el producto como oferta.
-   Las imágenes están en /public/img.
-   Los productos y usuarios se copian a localStorage la primera
-   vez, así el administrador puede crearlos / editarlos.
-   ========================================================= */
 
 export const CATEGORIAS_BASE = [
   { id: "tortas-cuadradas", nombre: "Tortas Cuadradas", descripcion: "Tortas para celebraciones grandes, fáciles de porcionar." },

@@ -1,6 +1,4 @@
-/* =========================================================
-   Utilidades compartidas por las pruebas (Jasmine + Karma).
-   ========================================================= */
+
 import { render } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { AvisosProvider } from "../context/AvisosContext.jsx";

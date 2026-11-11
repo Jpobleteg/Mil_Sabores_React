@@ -1,8 +1,4 @@
-/* =========================================================
-   validaciones.js — Reglas de validación reutilizables.
-   Cada función devuelve "" si el valor es válido o un mensaje
-   de error personalizado si no lo es.
-   ========================================================= */
+
 
 export const DOMINIOS_PERMITIDOS = ["@duoc.cl", "@profesor.duoc.cl", "@gmail.com"];
 

@@ -1,6 +1,6 @@
 import { enOferta, precioFinal } from "./store.js";
 
-/* Función pura que aplica los filtros del catálogo (fácil de probar). */
+
 export const normalizar = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 export function filtrarProductos(productos, f) {
