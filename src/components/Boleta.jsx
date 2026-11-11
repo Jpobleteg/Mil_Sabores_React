@@ -1,8 +1,7 @@
 import { ESTADOS, formatoCLP } from "../lib/store.js";
 import TablaCarrito from "./TablaCarrito.jsx";
 
-/* Boleta / detalle de una orden (cliente y administrador).
-   Props: orden (objeto de la orden) */
+
 export default function Boleta({ orden: o }) {
   const paso = ESTADOS.indexOf(o.estado);
   const lineas = o.items.map((i, n) => ({ ...i, clave: `${i.codigo}-${n}`, producto: null, subtotal: i.unitario * i.cantidad }));
