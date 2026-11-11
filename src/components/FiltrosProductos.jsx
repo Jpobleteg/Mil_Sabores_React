@@ -1,8 +1,6 @@
 import { formatoCLP } from "../lib/store.js";
 
-/* Panel de filtros del catálogo. No guarda estado propio: recibe los
-   valores por props y avisa cada cambio al componente padre (estado "elevado").
-   Props: filtros, categorias, precioTope, sugerencias, onCambiar(campo, valor), onLimpiar() */
+/* Panel de filtros del catálogo. */
 export default function FiltrosProductos({ filtros: f, categorias, precioTope, sugerencias = [], onCambiar, onLimpiar }) {
   const cambiar = campo => e => onCambiar(campo, e.target.value);
   return (
