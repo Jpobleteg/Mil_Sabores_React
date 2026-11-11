@@ -1,16 +1,3 @@
-/* =========================================================
-   Configuración de Karma (ejecutor de pruebas) + Jasmine (framework).
-
-   · Karma abre Chrome sin interfaz (ChromeHeadless) y ejecuta las
-     pruebas *.spec.js / *.spec.jsx de la carpeta src/test.
-   · Webpack + Babel transforman JSX y módulos ES antes de enviarlos
-     al navegador (Karma no entiende JSX por sí solo).
-   · babel-plugin-istanbul instrumenta el código de src/ para medir
-     la cobertura; karma-coverage genera el informe en /coverage.
-
-   Ejecutar:  npm test          (una vez, con cobertura)
-              npm run test:watch (modo observador)
-   ========================================================= */
 const path = require("path");
 
 module.exports = function (config) {
@@ -19,7 +6,6 @@ module.exports = function (config) {
 
     files: [
       { pattern: "src/test/**/*.spec.@(js|jsx)", watched: false },
-      /* Imágenes de /public disponibles para los componentes durante las pruebas */
       { pattern: "public/img/**/*", watched: false, included: false, served: true }
     ],
     proxies: { "/img/": "/base/public/img/" },
@@ -45,7 +31,6 @@ module.exports = function (config) {
                   ["@babel/preset-react", { runtime: "automatic" }]
                 ],
                 plugins: [
-                  /* Mide cobertura solo del código de la app, no de las pruebas */
                   ["istanbul", { include: ["src/**"], exclude: ["src/test/**", "src/main.jsx"] }]
                 ]
               }
