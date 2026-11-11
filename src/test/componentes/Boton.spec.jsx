@@ -1,4 +1,3 @@
-/* Pruebas de PROPS y EVENTOS: componente Boton */
 import { fireEvent, render, screen } from "@testing-library/react";
 import Boton from "../../components/Boton.jsx";
 
