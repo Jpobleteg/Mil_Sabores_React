@@ -5,15 +5,7 @@ import { useFormulario } from "../hooks/useFormulario.js";
 import Campo from "./Campo.jsx";
 import SelectorRegionComuna from "./SelectorRegionComuna.jsx";
 
-/* =========================================================
-   Formulario de usuario compartido por:
-     · Registro de usuario (tienda)            modo="registro"
-     · Mi perfil (tienda)                      modo="perfil"
-     · Nuevo / Editar usuario (administrador)  modo="admin"
-   Reglas: RUN, nombre, apellidos, correo, fecha de nacimiento,
-   tipo de usuario (solo admin), región/comuna y dirección.
-   onGuardar(datos) recibe los datos ya validados.
-   ========================================================= */
+
 export default function FormularioUsuario({ modo, editando = null, onGuardar, textoBoton, pie }) {
   const esRegistro = modo === "registro";
   const esPerfil = modo === "perfil";
