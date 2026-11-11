@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 
-/* Ruta de navegación (breadcrumb de Bootstrap).
-   items: [{ texto, to }]; el último es la página actual (sin enlace) */
+/* Ruta de navegación (breadcrumb de Bootstrap). */
 export default function Migas({ items }) {
   return (
     <nav aria-label="Ruta de navegación" className="mt-3">
