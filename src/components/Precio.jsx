@@ -1,7 +1,5 @@
 import { enOferta, formatoCLP, porcentajeOferta, precioFinal } from "../lib/store.js";
 
-/* Muestra el precio de un producto; si está en oferta, tacha el precio normal.
-   factor: multiplica el precio (tamaño de la torta) */
 export default function Precio({ producto, factor = 1, className = "", conBadge = true }) {
   const final = precioFinal(producto) * factor;
   return (
